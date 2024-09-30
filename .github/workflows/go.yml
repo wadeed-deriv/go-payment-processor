@@ -1,0 +1,41 @@
+name: test and lint
+
+on: [push, pull_request]
+
+jobs:
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        #with:
+        #  submodules: 'true'
+        #  ssh-key: "${{ secrets.READ_GITHUB_SSH_KEY }}"
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: ./go.mod
+          check-latest: true
+      - name: Test
+        run: make test
+      # Uncomment to enable uploading of the coverage to coveralls
+      # - name: Coveralls
+      #   uses: coverallsapp/github-action@3dfc5567390f6fa9267c0ee9c251e4c8c3f18949
+      #   with:
+      #     file: cover.out
+      #     format: golang
+
+  golangci-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        #with:
+        #  submodules: 'true'
+        #  ssh-key: "${{ secrets.READ_GITHUB_SSH_KEY }}"
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: ./go.mod
+          check-latest: true
+      - name: Golangci-lint
+        uses: golangci/golangci-lint-action@aaa42aa0628b4ae2578232a66b541047968fac86
+        with:
+          version: v1.60.3

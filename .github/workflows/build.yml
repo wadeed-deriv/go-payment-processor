@@ -1,0 +1,33 @@
+name: Image build, test, push
+on:
+  pull_request:
+  workflow_dispatch:
+  push:
+    tags:
+      - '*'
+    branches:
+      - master
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # submodules: 'true'
+          ref: ${{ github.event.pull_request.head.sha }}
+          ssh-key: "${{ secrets.READ_GITHUB_SSH_KEY }}"
+          fetch-depth: 0
+          fetch-tags: 'true'
+      - run: echo "APP_VERSION=$(git describe --tags --always)" | tee -a "$GITHUB_ENV"
+      - uses: regentmarkets/ci-actions-docker-build/build_and_test@v0.1.4
+        with:
+          build-args: "APP_VERSION=${{ env.APP_VERSION }}"
+          skip_checkout: 'true'
+          ssh_key: "${{ secrets.READ_GITHUB_SSH_KEY }}"
+          project_type: skip
+          dockerfile: "./Dockerfile"
+          organisation: regentmarkets
+          push: true
+          username: circle4regentmarkets
+          password: ${{ secrets.DOCKER_PASSWORD }}
