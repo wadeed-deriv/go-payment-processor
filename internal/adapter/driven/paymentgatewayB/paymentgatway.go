@@ -7,6 +7,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/wadeed-deriv/go-payment-processor/internal/domain/entities"
 )
@@ -30,7 +31,10 @@ func NewPaymentGateway() *PaymentGateway {
 
 func (r *PaymentGateway) Deposit(ctx context.Context, paymentdetail *entities.PaymentDetail) error {
 
-	depositURL := "http://127.0.0.1:3000/xml/deposit"
+	depositURL := os.Getenv("GATEWAY_B_URL") + "/deposit"
+	if depositURL == "" {
+		depositURL = "http://127.0.0.1:3000/xml/deposit"
+	}
 
 	depositReq := Request{
 		Amount:   paymentdetail.Amount,
@@ -47,7 +51,10 @@ func (r *PaymentGateway) Deposit(ctx context.Context, paymentdetail *entities.Pa
 
 func (r *PaymentGateway) Withdrawal(ctx context.Context, paymentdetail *entities.PaymentDetail) error {
 
-	withdrawalURL := "http://127.0.0.1:3000/xml/withdrawal"
+	withdrawalURL := os.Getenv("GATEWAY_B_URL") + "/withdrawal"
+	if withdrawalURL == "" {
+		withdrawalURL = "http://127.0.0.1:3000/xml/withdrawal"
+	}
 
 	withdrawalReq := Request{
 		Amount:   paymentdetail.Amount,
