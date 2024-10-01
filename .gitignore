@@ -1,2 +1,4 @@
 covdatafiles/
 cover*.out
+
+test-server/node_modules/
