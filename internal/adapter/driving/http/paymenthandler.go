@@ -2,7 +2,6 @@ package http
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 
 	"github.com/wadeed-deriv/go-payment-processor/internal/application"
@@ -23,8 +22,6 @@ func (h *PaymentHandler) MakeDeposit(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return
 	}
-
-	log.Println(paymentDetail)
 
 	if err := h.service.MakeDeposit(r.Context(), &paymentDetail); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
