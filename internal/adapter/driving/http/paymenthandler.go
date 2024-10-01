@@ -19,29 +19,34 @@ func NewPaymentHandler(service *application.Paymentservice) *PaymentHandler {
 func (h *PaymentHandler) MakeDeposit(w http.ResponseWriter, r *http.Request) {
 	var paymentDetail entities.PaymentDetail
 	if err := json.NewDecoder(r.Body).Decode(&paymentDetail); err != nil {
-		http.Error(w, "Bad Request", http.StatusBadRequest)
+		h.respond(w, http.StatusBadRequest, "failed", "Invalid request payload")
 		return
 	}
 
 	if err := h.service.MakeDeposit(r.Context(), &paymentDetail); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		h.respond(w, http.StatusInternalServerError, "failed", err.Error())
 		return
 	}
-
-	w.WriteHeader(http.StatusCreated)
+	h.respond(w, http.StatusOK, "success", "Deposit made successfully")
 }
 
 func (h *PaymentHandler) MakeWithdrawal(w http.ResponseWriter, r *http.Request) {
 	var paymentDetail entities.PaymentDetail
 	if err := json.NewDecoder(r.Body).Decode(&paymentDetail); err != nil {
-		http.Error(w, "Bad Request", http.StatusBadRequest)
+		h.respond(w, http.StatusBadRequest, "failed", "Invalid request payload")
 		return
 	}
 
 	if err := h.service.MakeWithdrawal(r.Context(), &paymentDetail); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		h.respond(w, http.StatusInternalServerError, "failed", err.Error())
 		return
 	}
+	h.respond(w, http.StatusOK, "success", "Withdrawal made successfully")
+}
 
-	w.WriteHeader(http.StatusCreated)
+func (h *PaymentHandler) respond(w http.ResponseWriter, statusCode int, status string, message string) {
+	w.WriteHeader(statusCode)
+	response := map[string]string{"status": status, "message": message}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
 }
