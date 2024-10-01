@@ -2,7 +2,7 @@ package paymentgatewayA
 
 import (
 	"context"
-	"log"
+	"errors"
 
 	"github.com/wadeed-deriv/go-payment-processor/internal/domain/entities"
 
@@ -11,6 +11,16 @@ import (
 	"net/http"
 )
 
+type Request struct {
+	Amount   float64 `json:"amount"`
+	ClientID string  `json:"clientID"`
+}
+
+type Response struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
+}
+
 type PaymentGateway struct {
 }
 
@@ -18,35 +28,49 @@ func NewPaymentGateway() *PaymentGateway {
 	return &PaymentGateway{}
 }
 
-func (r *PaymentGateway) Deposit(ctx context.Context, paymentdetail *entities.PaymentDetail) {
+func (r *PaymentGateway) Deposit(ctx context.Context, paymentdetail *entities.PaymentDetail) error {
 
-	type DepositRequest struct {
-		Amount   float64 `json:"amount"`
-		ClientID string  `json:"clientID"`
-	}
+	depositURL := "http://127.0.0.1:3000/json/deposit"
 
-	type DepositResponse struct {
-		Status  string `json:"status"`
-		Message string `json:"message"`
-	}
-
-	depositURL := "https://thirdpartyservice.com/api/deposit"
-
-	depositReq := DepositRequest{
+	depositReq := Request{
 		Amount:   paymentdetail.Amount,
 		ClientID: paymentdetail.ID,
 	}
 
-	jsonData, err := json.Marshal(depositReq)
+	err := sendRequest(ctx, depositReq, depositURL)
 	if err != nil {
-		log.Printf("Error marshalling request: %v", err)
-		return
+		return errors.New("deposit failed")
+	}
+
+	return nil
+}
+
+func (r *PaymentGateway) Withdrawal(ctx context.Context, paymentdetail *entities.PaymentDetail) error {
+
+	withdrawalURL := "http://127.0.0.1:3000/json/withdrawal"
+
+	withdrawalReq := Request{
+		Amount:   paymentdetail.Amount,
+		ClientID: paymentdetail.ID,
+	}
+
+	err := sendRequest(ctx, withdrawalReq, withdrawalURL)
+	if err != nil {
+		return errors.New("withdrawal failed")
+	}
+
+	return nil
+}
+
+func sendRequest(ctx context.Context, request Request, depositURL string) error {
+	jsonData, err := json.Marshal(request)
+	if err != nil {
+		return errors.New("gateway error")
 	}
 
 	req, err := http.NewRequestWithContext(ctx, "POST", depositURL, bytes.NewBuffer(jsonData))
 	if err != nil {
-		log.Printf("Error creating request: %v", err)
-		return
+		return errors.New("gateway error")
 	}
 
 	req.Header.Set("Content-Type", "application/json")
@@ -54,25 +78,17 @@ func (r *PaymentGateway) Deposit(ctx context.Context, paymentdetail *entities.Pa
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Printf("Error making HTTP request: %v", err)
-		return
+		return errors.New("gateway error")
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		log.Printf("Received non-OK response: %v", resp.Status)
-		return
+		return errors.New("gateway error")
 	}
 
-	var depositResp DepositResponse
+	var depositResp Response
 	if err := json.NewDecoder(resp.Body).Decode(&depositResp); err != nil {
-		log.Printf("Error decoding response: %v", err)
-		return
+		return errors.New("gateway error")
 	}
-
-	log.Printf("Deposit response: %v", depositResp)
-}
-
-func (r *PaymentGateway) Withdrawal(ctx context.Context, paymentdetail *entities.PaymentDetail) {
-	//make http depoist call to gateway
+	return nil
 }

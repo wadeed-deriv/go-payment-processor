@@ -23,16 +23,26 @@ func (r *PaymentRepository) GetClient(ctx context.Context, payment *entities.Pay
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			// Handle no rows returned (e.g. client not found)
 			return nil, errors.New("client not found")
 		}
 		return nil, err
 	}
-
 	return client, nil
 }
 
-// func (r *PaymentRepository) GetClient(ctx context.Context, payment *entities.PaymentDetail) error {
-// 	_, err := r.db.ExecContext(ctx, "SELECT * FROM client where id =  $1", payment.ID)
-// 	return err
-// }
+func (r *PaymentRepository) UpdateClientBalance(ctx context.Context, client *entities.Client) error {
+	_, err := r.db.ExecContext(ctx, "UPDATE client SET balance = $1 WHERE id = $2", client.Balance, client.ID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *PaymentRepository) CreateTransaction(ctx context.Context, transaction *entities.Transaction) error {
+	_, err := r.db.ExecContext(ctx, "INSERT INTO transaction (client_id, amount, type) VALUES ($1, $2, $3)",
+		transaction.ClientID, transaction.Amount, transaction.Type)
+	if err != nil {
+		return err
+	}
+	return nil
+}
