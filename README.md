@@ -4,28 +4,6 @@ This project is a simple payment processing application written in Go. It provid
 
 ## Features
 
-- Ability to manage multiple payment gateways seemlessly 
-- Supports multiple data format (json, xml) integration over http 
-- Flexible data model layer to incorporate all popular databases (Sql Server, Postgres, MySql)
-
-## Architecture Overview 
-
-- The service exposes 2 transaction endpoints to be consumed on the client side (Deposit, Withdrawal) which can be used to make account deposit and withdrawal
-- The service also exposes 1 endpoint for gateways to consume for asynchorouns transaction updates (reversal)
-- The service implements the driving and driven architecture as the PaymentHandler initiates the request to the service layer and the service layer invokes the gateway(driven)
-- The gatewayIdentifer service identifies which gateway should be the request initiated base on which the customer is registered. 
-- The database of choice is postgres but the db layer function can be easily extended to support other DB as the implementation is dictated by interfaces. 
-
-![Architecture Overview](./architecture.png)
-
-
-## Setup Guide 
-
-- Clone the repository git@github.com:wadeed-deriv/go-payment-processor.git
-This project is a simple payment processing application written in Go. It provides basic functionalities to handle payment transactions across different payment gateways.
-
-## Features
-
 - Ability to manage multiple payment gateways seamlessly
 - Supports multiple data formats (JSON, XML) integration over HTTP
 - Flexible data model layer to incorporate all popular databases (SQL Server, Postgres, MySQL)
@@ -38,7 +16,7 @@ This project is a simple payment processing application written in Go. It provid
 - The gatewayIdentifier service identifies which gateway should be the request initiated based on which the customer is registered.
 - The database of choice is Postgres but the DB layer function can be easily extended to support other DBs as the implementation is dictated by interfaces.
 
-![Architecture Overview](./architecture.png)
+![Architecture Overview](architecture.png)
 
 ## Setup Guide
 
