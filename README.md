@@ -16,7 +16,7 @@ This project is a simple payment processing application written in Go. It provid
 - The gatewayIdentifier service identifies which gateway should be the request initiated based on which the customer is registered.
 - The database of choice is Postgres but the DB layer function can be easily extended to support other DBs as the implementation is dictated by interfaces.
 
-![Architecture Overview](architecture.png)
+![Architecture Overview](architecture.jpg)
 
 ## Setup Guide
 
