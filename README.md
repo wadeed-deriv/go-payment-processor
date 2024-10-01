@@ -31,3 +31,81 @@ This project is a simple payment processing application written in Go. It provid
 - This will create and run 2 container, Postgres db container which will have the database already initialize in it through script `dbscript\init.sql`
 - The other container will be the payment process App container exposing server on `localhost:8080`
 - You can start interacting with the Api now. 
+
+# API Documentation
+
+# OpenAPI Specification
+
+```yaml
+openapi: 3.0.1
+info:
+  title: Payment API
+  description: API for deposit and withdrawal operations.
+  version: "1.0.0"
+paths:
+  /deposit:
+    post:
+      summary: Deposit funds into the user's account
+      requestBody:
+        description: Deposit request body
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Unique identifier of the user
+                  example: "1"
+                amount:
+                  type: number
+                  description: Amount to deposit
+                  example: 1000
+      responses:
+        '200':
+          description: Successfully deposited funds
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Deposit successful"
+  /withdrawal:
+    post:
+      summary: Withdraw funds from the user's account
+      requestBody:
+        description: Withdrawal request body
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Unique identifier of the user
+                  example: "1"
+                amount:
+                  type: number
+                  description: Amount to withdraw
+                  example: 1000
+      responses:
+        '200':
+          description: Successfully withdrew funds
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Withdrawal successful"
