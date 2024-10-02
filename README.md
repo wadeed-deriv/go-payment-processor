@@ -170,6 +170,12 @@ NEW_GATEWAY_URL=http://host.docker.internal:3000/new
 ```
 - Rebuild the docker container. 
 
+## Run Test 
+- Run the following command in the root of the service repository
+```
+ go test ./...
+ ```
+
 
 ## Scaling up the solution
 

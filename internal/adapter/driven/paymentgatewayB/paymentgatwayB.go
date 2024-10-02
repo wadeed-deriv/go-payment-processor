@@ -23,17 +23,22 @@ type Response struct {
 }
 
 type PaymentGateway struct {
+	client *http.Client
 }
 
-func NewPaymentGateway() *PaymentGateway {
-	return &PaymentGateway{}
+func NewPaymentGateway(client *http.Client) *PaymentGateway {
+	return &PaymentGateway{
+		client: client,
+	}
 }
 
 func (r *PaymentGateway) Deposit(ctx context.Context, paymentdetail *entities.PaymentDetail) error {
 
-	depositURL := os.Getenv("GATEWAY_B_URL") + "/deposit"
+	depositURL := os.Getenv("GATEWAY_B_URL")
 	if depositURL == "" {
 		depositURL = "http://127.0.0.1:3000/xml/deposit"
+	} else {
+		depositURL = depositURL + "/deposit"
 	}
 
 	depositReq := Request{
@@ -51,9 +56,11 @@ func (r *PaymentGateway) Deposit(ctx context.Context, paymentdetail *entities.Pa
 
 func (r *PaymentGateway) Withdrawal(ctx context.Context, paymentdetail *entities.PaymentDetail) error {
 
-	withdrawalURL := os.Getenv("GATEWAY_B_URL") + "/withdrawal"
+	withdrawalURL := os.Getenv("GATEWAY_B_URL")
 	if withdrawalURL == "" {
 		withdrawalURL = "http://127.0.0.1:3000/xml/withdrawal"
+	} else {
+		withdrawalURL = withdrawalURL + "/withdrawal"
 	}
 
 	withdrawalReq := Request{

@@ -4,7 +4,9 @@ import (
 	"log"
 	"os"
 
-	"github.com/wadeed-deriv/go-payment-processor/internal/adapter/driving/http"
+	"net/http"
+
+	"github.com/wadeed-deriv/go-payment-processor/internal/adapter/driving/httphandler"
 	"github.com/wadeed-deriv/go-payment-processor/internal/application"
 	"github.com/wadeed-deriv/go-payment-processor/internal/db/postgres"
 )
@@ -27,9 +29,10 @@ func main() {
 	paymentRepo = postgres.NewPaymentRepository(db)
 
 	// Initializing payment service and injecting dependencies
-	paymentSerive := application.NewPaymentSerice(paymentRepo)
-	payment := http.NewPaymentHandler(paymentSerive)
-	server := http.NewServer(payment)
+	httpClient := &http.Client{}
+	paymentSerive := application.NewPaymentSerice(paymentRepo, httpClient)
+	payment := httphandler.NewPaymentHandler(paymentSerive)
+	server := httphandler.NewServer(payment)
 
 	server.Start(":8080")
 }

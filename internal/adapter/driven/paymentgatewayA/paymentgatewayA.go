@@ -1,15 +1,15 @@
 package paymentgatewayA
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
+	"log"
+	"net/http"
 	"os"
 
 	"github.com/wadeed-deriv/go-payment-processor/internal/domain/entities"
-
-	"bytes"
-	"encoding/json"
-	"net/http"
 )
 
 type Request struct {
@@ -23,25 +23,31 @@ type Response struct {
 }
 
 type PaymentGateway struct {
+	client *http.Client
 }
 
-func NewPaymentGateway() *PaymentGateway {
-	return &PaymentGateway{}
+func NewPaymentGateway(client *http.Client) *PaymentGateway {
+	return &PaymentGateway{
+		client: client,
+	}
 }
 
 func (r *PaymentGateway) Deposit(ctx context.Context, paymentdetail *entities.PaymentDetail) error {
-
-	depositURL := os.Getenv("GATEWAY_A_URL") + "/deposit"
+	depositURL := os.Getenv("GATEWAY_A_URL")
 	if depositURL == "" {
 		depositURL = "http://127.0.0.1:3000/json/deposit"
+	} else {
+		depositURL = depositURL + "/deposit"
 	}
+
+	log.Println("Deposit URL: ", depositURL)
 
 	depositReq := Request{
 		Amount:   paymentdetail.Amount,
 		ClientID: paymentdetail.ID,
 	}
 
-	err := sendRequest(ctx, depositReq, depositURL)
+	err := r.sendRequest(ctx, depositReq, depositURL)
 	if err != nil {
 		return errors.New("deposit failed")
 	}
@@ -50,10 +56,11 @@ func (r *PaymentGateway) Deposit(ctx context.Context, paymentdetail *entities.Pa
 }
 
 func (r *PaymentGateway) Withdrawal(ctx context.Context, paymentdetail *entities.PaymentDetail) error {
-
-	withdrawalURL := os.Getenv("GATEWAY_A_URL") + "/withdrawal"
+	withdrawalURL := os.Getenv("GATEWAY_A_URL")
 	if withdrawalURL == "" {
 		withdrawalURL = "http://127.0.0.1:3000/json/withdrawal"
+	} else {
+		withdrawalURL = withdrawalURL + "/withdrawal"
 	}
 
 	withdrawalReq := Request{
@@ -61,7 +68,7 @@ func (r *PaymentGateway) Withdrawal(ctx context.Context, paymentdetail *entities
 		ClientID: paymentdetail.ID,
 	}
 
-	err := sendRequest(ctx, withdrawalReq, withdrawalURL)
+	err := r.sendRequest(ctx, withdrawalReq, withdrawalURL)
 	if err != nil {
 		return errors.New("withdrawal failed")
 	}
@@ -69,21 +76,20 @@ func (r *PaymentGateway) Withdrawal(ctx context.Context, paymentdetail *entities
 	return nil
 }
 
-func sendRequest(ctx context.Context, request Request, depositURL string) error {
+func (r *PaymentGateway) sendRequest(ctx context.Context, request Request, url string) error {
 	jsonData, err := json.Marshal(request)
 	if err != nil {
 		return errors.New("gateway error")
 	}
 
-	req, err := http.NewRequestWithContext(ctx, "POST", depositURL, bytes.NewBuffer(jsonData))
+	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(jsonData))
 	if err != nil {
 		return errors.New("gateway error")
 	}
 
 	req.Header.Set("Content-Type", "application/json")
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	resp, err := r.client.Do(req)
 	if err != nil {
 		return errors.New("gateway error")
 	}
@@ -97,5 +103,6 @@ func sendRequest(ctx context.Context, request Request, depositURL string) error 
 	if err := json.NewDecoder(resp.Body).Decode(&depositResp); err != nil {
 		return errors.New("gateway error")
 	}
+
 	return nil
 }

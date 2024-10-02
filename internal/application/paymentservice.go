@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log"
+	"net/http"
 
 	"github.com/wadeed-deriv/go-payment-processor/internal/domain/entities"
 )
@@ -22,11 +23,12 @@ type PaymentRepository interface {
 }
 
 type Paymentservice struct {
-	payment PaymentRepository
+	payment    PaymentRepository
+	httpClient *http.Client
 }
 
-func NewPaymentSerice(payment PaymentRepository) *Paymentservice {
-	return &Paymentservice{payment: payment}
+func NewPaymentSerice(payment PaymentRepository, httpClient *http.Client) *Paymentservice {
+	return &Paymentservice{payment: payment, httpClient: httpClient}
 }
 
 /**
@@ -44,7 +46,7 @@ func (s *Paymentservice) MakeDeposit(ctx context.Context, paymentdetail *entitie
 	if err != nil {
 		return errors.New("client not found")
 	}
-	var gateway = IdentifyPaymentGateway(client.Gateway)
+	var gateway = IdentifyPaymentGateway(client.Gateway, s.httpClient)
 
 	log.Println(paymentdetail)
 	err = gateway.Deposit(ctx, paymentdetail)
@@ -83,7 +85,7 @@ func (s *Paymentservice) MakeWithdrawal(ctx context.Context, paymentdetail *enti
 	if err != nil {
 		return errors.New("client not found")
 	}
-	var gateway = IdentifyPaymentGateway(client.Gateway)
+	var gateway = IdentifyPaymentGateway(client.Gateway, s.httpClient)
 
 	log.Println(paymentdetail)
 	err = gateway.Withdrawal(ctx, paymentdetail)
@@ -108,6 +110,13 @@ func (s *Paymentservice) MakeWithdrawal(ctx context.Context, paymentdetail *enti
 	return nil
 }
 
+/**
+ * TransactionUpdate
+ * @summary Update the transaction
+ * @param ctx context.Context
+ * @param transactionUpdate *entities.TransactionUpdate
+ * @return error
+ */
 func (s *Paymentservice) TransactionUpdate(ctx context.Context, transactionUpdate *entities.TransactionUpdate) error {
 	var client *entities.Client
 	client, err := s.payment.GetClient(ctx, transactionUpdate.AccountID)

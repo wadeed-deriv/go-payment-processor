@@ -1,18 +1,24 @@
-package http
+package httphandler
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 
-	"github.com/wadeed-deriv/go-payment-processor/internal/application"
 	"github.com/wadeed-deriv/go-payment-processor/internal/domain/entities"
 )
 
-type PaymentHandler struct {
-	service *application.Paymentservice
+type PaymentService interface {
+	MakeDeposit(ctx context.Context, paymentdetail *entities.PaymentDetail) error
+	MakeWithdrawal(ctx context.Context, paymentdetail *entities.PaymentDetail) error
+	TransactionUpdate(ctx context.Context, transactionUpdate *entities.TransactionUpdate) error
 }
 
-func NewPaymentHandler(service *application.Paymentservice) *PaymentHandler {
+type PaymentHandler struct {
+	service PaymentService
+}
+
+func NewPaymentHandler(service PaymentService) *PaymentHandler {
 	return &PaymentHandler{service: service}
 }
 
