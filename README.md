@@ -34,4 +34,117 @@ This project is a simple payment processing application written in Go. It provid
 
 # API Documentation
 
+- Please paste the below openapi specifications in `editor.swagger.io` 
+```
+openapi: 3.0.1
+info:
+  title: Payment API
+  description: API for deposit, withdrawal, and update operations.
+  version: "1.0.0"
+paths:
+  /deposit:
+    post:
+      summary: Deposit funds into the user's account
+      requestBody:
+        description: Deposit request body
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Unique identifier of the user
+                  example: "1"
+                amount:
+                  type: number
+                  description: Amount to deposit
+                  example: 1000
+      responses:
+        '200':
+          description: Successfully deposited funds
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Deposit successful"
 
+  /withdrawal:
+    post:
+      summary: Withdraw funds from the user's account
+      requestBody:
+        description: Withdrawal request body
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Unique identifier of the user
+                  example: "1"
+                amount:
+                  type: number
+                  description: Amount to withdraw
+                  example: 1000
+      responses:
+        '200':
+          description: Successfully withdrew funds
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Withdrawal successful"
+
+  /update:
+    post:
+      summary: Update transaction details
+      requestBody:
+        description: Update request body
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Unique identifier of the user
+                  example: "1"
+                amount:
+                  type: number
+                  description: Amount for the transaction
+                  example: 1000
+                transactiontype:
+                  type: string
+                  description: Type of transaction (DEPOSIT/WITHDRAWAL)
+                  example: "DEPOSIT"
+      responses:
+        '200':
+          description: Successfully updated transaction
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Transaction updated successfully"
+```

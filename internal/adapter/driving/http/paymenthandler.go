@@ -75,7 +75,7 @@ func (h *PaymentHandler) TransactionUpdate(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if err := h.service.TransactionUpdate(r.Context(), &transaction); err != nil {
+	if err := h.service.TransactionUpdate(r.Context(), &transactionUpdate); err != nil {
 		h.respond(w, http.StatusInternalServerError, "failed", err.Error())
 		return
 	}

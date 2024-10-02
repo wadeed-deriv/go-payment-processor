@@ -14,7 +14,7 @@ func NewServer(handler *PaymentHandler) *Server {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/deposit", handler.MakeDeposit)
 	mux.HandleFunc("/withdrawal", handler.MakeWithdrawal)
-	mux.HandleFunc("update", handler.TransactionUpdate)
+	mux.HandleFunc("/update", handler.TransactionUpdate)
 	return &Server{mux: mux}
 }
 
