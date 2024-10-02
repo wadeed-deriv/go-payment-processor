@@ -32,7 +32,7 @@ This project is a simple payment processing application written in Go. It provid
 - The other container will be the payment process App container exposing server on `localhost:8080`
 - You can start interacting with the Api now. 
 
-# API Documentation
+## API Documentation
 
 - Please paste the below openapi specifications in `editor.swagger.io` 
 ```
@@ -148,3 +148,24 @@ paths:
                     type: string
                     example: "Transaction updated successfully"
 ```
+
+## Adding a new Gateway 
+
+- First we need to include a new gateway entry in database like `ALTER TYPE gateway ADD VALUE 'C';`
+- Add an entry in `internal/application/gatewayidenitifer.go` like :
+```case "A":
+		return paymentgatewayA.NewPaymentGateway()
+```
+- create a directory in `internal/adapter/driven`. in the newly created directory create a file `paymentgateway.go` then implement the below interface in the code file 
+```
+type PaymentGateway interface {
+	Deposit(ctx context.Context, paymentdetail *entities.PaymentDetail) error
+	Withdrawal(ctx context.Context, paymentdetail *entities.PaymentDetail) error
+}
+```
+- Include the `new_gateway_url` in docker-compose in app -> environment file like 
+```
+NEW_GATEWAY_URL=http://host.docker.internal:3000/new
+```
+- Rebuild the docker container. 
+
