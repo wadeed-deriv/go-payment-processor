@@ -8,11 +8,13 @@ import (
 	"github.com/wadeed-deriv/go-payment-processor/internal/domain/entities"
 )
 
+// PaymentGateway interface
 type PaymentGateway interface {
 	Deposit(ctx context.Context, paymentdetail *entities.PaymentDetail) error
 	Withdrawal(ctx context.Context, paymentdetail *entities.PaymentDetail) error
 }
 
+// Payment DB repository interface
 type PaymentRepository interface {
 	GetClient(ctx context.Context, payment *entities.PaymentDetail) (*entities.Client, error)
 	UpdateClientBalance(ctx context.Context, client *entities.Client) error
@@ -27,6 +29,13 @@ func NewPaymentSerice(payment PaymentRepository) *Paymentservice {
 	return &Paymentservice{payment: payment}
 }
 
+/**
+ * MakeDeposit
+ * @summary Process the clients request to make a deposit
+ * @param ctx context.Context
+ * @param paymentdetail *entities.PaymentDetail
+ * @return error
+ */
 func (s *Paymentservice) MakeDeposit(ctx context.Context, paymentdetail *entities.PaymentDetail) error {
 
 	var client *entities.Client
@@ -60,6 +69,13 @@ func (s *Paymentservice) MakeDeposit(ctx context.Context, paymentdetail *entitie
 	return nil
 }
 
+/**
+* MakeWithdrawal
+* @summary Process the clients request to make a withdrawal
+* @param ctx context.Context
+* @param paymentdetail *entities.PaymentDetail
+* @return error
+ */
 func (s *Paymentservice) MakeWithdrawal(ctx context.Context, paymentdetail *entities.PaymentDetail) error {
 	var client *entities.Client
 	client, err := s.payment.GetClient(ctx, paymentdetail)

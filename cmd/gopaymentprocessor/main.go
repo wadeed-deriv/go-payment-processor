@@ -11,6 +11,9 @@ import (
 
 func main() {
 
+	/**
+	* Initializing database repository
+	**/
 	var paymentRepo application.PaymentRepository
 	connStr := os.Getenv("POSTGRES_CONNECTION_STRING")
 	if connStr == "" {
@@ -23,7 +26,7 @@ func main() {
 	defer db.Close()
 	paymentRepo = postgres.NewPaymentRepository(db)
 
-	//return payment gateway based on the type
+	// Initializing payment service and injecting dependencies
 	paymentSerive := application.NewPaymentSerice(paymentRepo)
 	payment := http.NewPaymentHandler(paymentSerive)
 	server := http.NewServer(payment)

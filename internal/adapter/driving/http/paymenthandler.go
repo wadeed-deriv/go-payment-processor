@@ -16,6 +16,18 @@ func NewPaymentHandler(service *application.Paymentservice) *PaymentHandler {
 	return &PaymentHandler{service: service}
 }
 
+/**
+ * @api {post} /deposit Make Deposit
+ * @apiName MakeDeposit
+ * @apiGroup Payment
+ *
+ * @apiParam {Number} amount Amount to deposit.
+ * @apiParam {String} clientID client identifier.
+ *
+ * @apiSuccess {String} status Status of the request.
+ * @apiSuccess {String} message Message of the request.
+ *
+ **/
 func (h *PaymentHandler) MakeDeposit(w http.ResponseWriter, r *http.Request) {
 	var paymentDetail entities.PaymentDetail
 	if err := json.NewDecoder(r.Body).Decode(&paymentDetail); err != nil {
@@ -30,6 +42,18 @@ func (h *PaymentHandler) MakeDeposit(w http.ResponseWriter, r *http.Request) {
 	h.respond(w, http.StatusOK, "success", "Deposit made successfully")
 }
 
+/**
+ * @api {post} /withdrawal Make Withdrawal
+ * @apiName MakeWithdrawal
+ * @apiGroup Payment
+ *
+ * @apiParam {Number} amount Amount to withdraw.
+ * @apiParam {String} clientID client identifier.
+ *
+ * @apiSuccess {String} status Status of the request.
+ * @apiSuccess {String} message Message of the request.
+ *
+ **/
 func (h *PaymentHandler) MakeWithdrawal(w http.ResponseWriter, r *http.Request) {
 	var paymentDetail entities.PaymentDetail
 	if err := json.NewDecoder(r.Body).Decode(&paymentDetail); err != nil {
