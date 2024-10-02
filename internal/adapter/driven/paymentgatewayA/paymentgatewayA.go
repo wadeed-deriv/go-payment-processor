@@ -40,15 +40,16 @@ func (r *PaymentGateway) Deposit(ctx context.Context, paymentdetail *entities.Pa
 		depositURL = depositURL + "/deposit"
 	}
 
-	log.Println("Deposit URL: ", depositURL)
-
 	depositReq := Request{
 		Amount:   paymentdetail.Amount,
 		ClientID: paymentdetail.ID,
 	}
 
+	log.Println("deposit request : ", depositReq)
+
 	err := r.sendRequest(ctx, depositReq, depositURL)
 	if err != nil {
+		log.Println("deposit failed due to error : ", err)
 		return errors.New("deposit failed")
 	}
 
@@ -68,8 +69,11 @@ func (r *PaymentGateway) Withdrawal(ctx context.Context, paymentdetail *entities
 		ClientID: paymentdetail.ID,
 	}
 
+	log.Println("withdrawal request : ", withdrawalReq)
+
 	err := r.sendRequest(ctx, withdrawalReq, withdrawalURL)
 	if err != nil {
+		log.Println("withdrawal failed due to error : ", err)
 		return errors.New("withdrawal failed")
 	}
 

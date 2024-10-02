@@ -175,7 +175,12 @@ NEW_GATEWAY_URL=http://host.docker.internal:3000/new
 ```
  go test ./...
  ```
-
+ - Or for individual result run the following command
+ ```
+ go test /internal/adapter/driving/htthandler/paymenthandler_test.go
+ go test /internal/application/paymentservice_test.go
+ go test /internal/db/paymentrepository_test.go
+ ```
 
 ## Scaling up the solution
 

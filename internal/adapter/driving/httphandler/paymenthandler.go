@@ -74,6 +74,18 @@ func (h *PaymentHandler) MakeWithdrawal(w http.ResponseWriter, r *http.Request) 
 	h.respond(w, http.StatusOK, "success", "Withdrawal made successfully")
 }
 
+/**
+ * @api {post} /update Update Transaction
+* @apiName TransactionUpdate
+* @apiGroup Payment
+*
+* @apiParam {String} transactionID Transaction identifier.
+* @apiParam {String} status Transaction status.
+* @apiParam {String} message Transaction message.
+*
+* @apiSuccess {String} status Status of the request.
+* @apiSuccess {String} message Message of the request.
+ **/
 func (h *PaymentHandler) TransactionUpdate(w http.ResponseWriter, r *http.Request) {
 	var transactionUpdate entities.TransactionUpdate
 	if err := json.NewDecoder(r.Body).Decode(&transactionUpdate); err != nil {
