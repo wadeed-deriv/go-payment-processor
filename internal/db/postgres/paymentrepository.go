@@ -16,9 +16,9 @@ func NewPaymentRepository(db *sql.DB) *PaymentRepository {
 	return &PaymentRepository{db: db}
 }
 
-func (r *PaymentRepository) GetClient(ctx context.Context, payment *entities.PaymentDetail) (*entities.Client, error) {
+func (r *PaymentRepository) GetClient(ctx context.Context, clientid string) (*entities.Client, error) {
 	client := &entities.Client{}
-	err := r.db.QueryRowContext(ctx, "SELECT id, name, gateway, balance FROM client WHERE id = $1", payment.ID).
+	err := r.db.QueryRowContext(ctx, "SELECT id, name, gateway, balance FROM client WHERE id = $1", clientid).
 		Scan(&client.ID, &client.Name, &client.Gateway, &client.Balance)
 
 	if err != nil {

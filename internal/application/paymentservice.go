@@ -16,7 +16,7 @@ type PaymentGateway interface {
 
 // Payment DB repository interface
 type PaymentRepository interface {
-	GetClient(ctx context.Context, payment *entities.PaymentDetail) (*entities.Client, error)
+	GetClient(ctx context.Context, clientid string) (*entities.Client, error)
 	UpdateClientBalance(ctx context.Context, client *entities.Client) error
 	CreateTransaction(ctx context.Context, transaction *entities.Transaction) error
 }
@@ -39,7 +39,7 @@ func NewPaymentSerice(payment PaymentRepository) *Paymentservice {
 func (s *Paymentservice) MakeDeposit(ctx context.Context, paymentdetail *entities.PaymentDetail) error {
 
 	var client *entities.Client
-	client, err := s.payment.GetClient(ctx, paymentdetail)
+	client, err := s.payment.GetClient(ctx, paymentdetail.ID)
 
 	if err != nil {
 		return errors.New("client not found")
@@ -78,7 +78,7 @@ func (s *Paymentservice) MakeDeposit(ctx context.Context, paymentdetail *entitie
  */
 func (s *Paymentservice) MakeWithdrawal(ctx context.Context, paymentdetail *entities.PaymentDetail) error {
 	var client *entities.Client
-	client, err := s.payment.GetClient(ctx, paymentdetail)
+	client, err := s.payment.GetClient(ctx, paymentdetail.ID)
 
 	if err != nil {
 		return errors.New("client not found")
@@ -103,6 +103,34 @@ func (s *Paymentservice) MakeWithdrawal(ctx context.Context, paymentdetail *enti
 		ClientID: client.ID,
 		Amount:   paymentdetail.Amount,
 		Type:     "WITHDRAWAL",
+	}
+	s.payment.CreateTransaction(ctx, transaction)
+	return nil
+}
+
+func (s *Paymentservice) TransactionUpdate(ctx context.Context, transactionUpdate *entities.TransactionUpdate) error {
+	var client *entities.Client
+	client, err := s.payment.GetClient(ctx, transactionUpdate.AccountID)
+
+	if err != nil {
+		return errors.New("client not found")
+	}
+
+	if transactionUpdate.TransactionType == "DEPOSIT" || transactionUpdate.TransactionType == "WITHDRAWAL_REVERSAL" {
+		client.Balance += transactionUpdate.Amount
+	} else if transactionUpdate.TransactionType == "WITHDRAWAL" || transactionUpdate.TransactionType == "DEPOSIT_REVERSAL" {
+		client.Balance -= transactionUpdate.Amount
+	}
+
+	err = s.payment.UpdateClientBalance(ctx, client)
+	if err != nil {
+		return errors.New("transaction update failed")
+	}
+
+	transaction := &entities.Transaction{
+		ClientID: client.ID,
+		Amount:   transactionUpdate.Amount,
+		Type:     transactionUpdate.TransactionType,
 	}
 	s.payment.CreateTransaction(ctx, transaction)
 	return nil

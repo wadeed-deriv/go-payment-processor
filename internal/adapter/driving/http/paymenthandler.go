@@ -68,6 +68,20 @@ func (h *PaymentHandler) MakeWithdrawal(w http.ResponseWriter, r *http.Request) 
 	h.respond(w, http.StatusOK, "success", "Withdrawal made successfully")
 }
 
+func (h *PaymentHandler) TransactionUpdate(w http.ResponseWriter, r *http.Request) {
+	var transactionUpdate entities.TransactionUpdate
+	if err := json.NewDecoder(r.Body).Decode(&transactionUpdate); err != nil {
+		h.respond(w, http.StatusBadRequest, "failed", "Invalid request payload")
+		return
+	}
+
+	if err := h.service.TransactionUpdate(r.Context(), &transaction); err != nil {
+		h.respond(w, http.StatusInternalServerError, "failed", err.Error())
+		return
+	}
+	h.respond(w, http.StatusOK, "success", "Transaction updated successfully")
+}
+
 func (h *PaymentHandler) respond(w http.ResponseWriter, statusCode int, status string, message string) {
 	w.WriteHeader(statusCode)
 	response := map[string]string{"status": status, "message": message}
