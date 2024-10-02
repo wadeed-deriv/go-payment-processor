@@ -153,7 +153,8 @@ paths:
 
 - First we need to include a new gateway entry in database like `ALTER TYPE gateway ADD VALUE 'C';`
 - Add an entry in `internal/application/gatewayidenitifer.go` like :
-```case "A":
+```
+case "A":
 		return paymentgatewayA.NewPaymentGateway()
 ```
 - create a directory in `internal/adapter/driven`. in the newly created directory create a file `paymentgateway.go` then implement the below interface in the code file 
