@@ -154,8 +154,8 @@ paths:
 - First we need to include a new gateway entry in database like `ALTER TYPE gateway ADD VALUE 'C';`
 - Add an entry in `internal/application/gatewayidenitifer.go` like :
 ```
-case "A":
-		return paymentgatewayA.NewPaymentGateway()
+case "C":
+	return paymentgatewayC.NewPaymentGateway()
 ```
 - create a directory in `internal/adapter/driven`. in the newly created directory create a file `paymentgateway.go` then implement the below interface in the code file 
 ```
@@ -170,3 +170,10 @@ NEW_GATEWAY_URL=http://host.docker.internal:3000/new
 ```
 - Rebuild the docker container. 
 
+
+## Scaling up the solution
+
+- Easiest way to scale the service is have multiple app docker container running behind a load balancer can use nginx reverse proxy.
+- Implementing Queue buffering on gateway endpoint to not overwhelm gateway and control the request flow.
+- Implementing Queue buffering on the async webhook `/update` as a lot of merchant reconciliation happens on night time that might overwhelm the webhook and our service.
+- Kubernetes deployment on cloud (GCP, AWS) auto scaling 
