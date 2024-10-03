@@ -7,6 +7,7 @@ This project is a simple payment processing application written in Go. It provid
 - Ability to manage multiple payment gateways seamlessly
 - Supports multiple data formats (JSON, XML) integration over HTTP
 - Flexible data model layer to incorporate all popular databases (SQL Server, Postgres, MySQL)
+- Retry mechanism on payment gateway with expotential backoff on httpclient
 
 ## Architecture Overview
 
