@@ -51,24 +51,34 @@ func (s *Paymentservice) MakeDeposit(ctx context.Context, paymentdetail *entitie
 	log.Println(paymentdetail)
 	err = gateway.Deposit(ctx, paymentdetail)
 
-	if err != nil {
-		return errors.New("deposit failed")
-	}
-	log.Println("Deposited")
-
-	client.Balance += paymentdetail.Amount
-	err = s.payment.UpdateClientBalance(ctx, client)
-	if err != nil {
-		return errors.New("deposit failed")
-	}
-
 	transaction := &entities.Transaction{
 		ClientID: client.ID,
 		Amount:   paymentdetail.Amount,
 		Type:     "DEPOSIT",
 	}
+
+	if err == nil {
+		client.Balance += paymentdetail.Amount
+		err = s.payment.UpdateClientBalance(ctx, client)
+
+		if err == nil {
+			log.Println("Deposited")
+			transaction.Status = "COMPLETED"
+			log.Println(transaction)
+			err = s.payment.CreateTransaction(ctx, transaction)
+			if err != nil {
+				log.Println(err)
+			}
+			return nil
+		} else {
+			transaction.Status = "FAILED"
+		}
+	} else {
+		transaction.Status = "FAILED"
+	}
+
 	s.payment.CreateTransaction(ctx, transaction)
-	return nil
+	return errors.New("deposit failed")
 }
 
 /**
@@ -90,24 +100,29 @@ func (s *Paymentservice) MakeWithdrawal(ctx context.Context, paymentdetail *enti
 	log.Println(paymentdetail)
 	err = gateway.Withdrawal(ctx, paymentdetail)
 
-	if err != nil {
-		return errors.New("withdrawal failed")
-	}
-	log.Println("Withdrawn")
-
-	client.Balance -= paymentdetail.Amount
-	err = s.payment.UpdateClientBalance(ctx, client)
-	if err != nil {
-		return errors.New("withdrawal failed")
-	}
-
 	transaction := &entities.Transaction{
 		ClientID: client.ID,
 		Amount:   paymentdetail.Amount,
 		Type:     "WITHDRAWAL",
 	}
+
+	if err == nil {
+		client.Balance -= paymentdetail.Amount
+		err = s.payment.UpdateClientBalance(ctx, client)
+
+		if err == nil {
+			log.Println("Withdrawn")
+			transaction.Status = "COMPLETED"
+			s.payment.CreateTransaction(ctx, transaction)
+			return nil
+		} else {
+			transaction.Status = "FAILED"
+		}
+	} else {
+		transaction.Status = "FAILED"
+	}
 	s.payment.CreateTransaction(ctx, transaction)
-	return nil
+	return errors.New("withdrawal failed")
 }
 
 /**
@@ -131,16 +146,20 @@ func (s *Paymentservice) TransactionUpdate(ctx context.Context, transactionUpdat
 		client.Balance -= transactionUpdate.Amount
 	}
 
-	err = s.payment.UpdateClientBalance(ctx, client)
-	if err != nil {
-		return errors.New("transaction update failed")
-	}
-
 	transaction := &entities.Transaction{
 		ClientID: client.ID,
 		Amount:   transactionUpdate.Amount,
 		Type:     transactionUpdate.TransactionType,
 	}
+
+	err = s.payment.UpdateClientBalance(ctx, client)
+	if err == nil {
+		log.Println("Transaction Updated")
+		transaction.Status = "COMPLETED"
+		s.payment.CreateTransaction(ctx, transaction)
+		return nil
+	}
+	transaction.Status = "FAILED"
 	s.payment.CreateTransaction(ctx, transaction)
-	return nil
+	return errors.New("transaction update failed")
 }

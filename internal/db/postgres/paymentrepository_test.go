@@ -92,7 +92,8 @@ func TestCreateTransaction(t *testing.T) {
 	transaction := &entities.Transaction{
 		ClientID: 1,
 		Amount:   50.0,
-		Type:     "credit",
+		Type:     "DEPOSIT",
+		Status:   "COMPLETED",
 	}
 
 	mock.ExpectExec("INSERT INTO transaction \\(client_id, amount, type\\) VALUES \\(\\$1, \\$2, \\$3\\)").

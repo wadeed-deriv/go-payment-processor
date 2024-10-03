@@ -39,8 +39,8 @@ func (r *PaymentRepository) UpdateClientBalance(ctx context.Context, client *ent
 }
 
 func (r *PaymentRepository) CreateTransaction(ctx context.Context, transaction *entities.Transaction) error {
-	_, err := r.db.ExecContext(ctx, "INSERT INTO transaction (client_id, amount, type) VALUES ($1, $2, $3)",
-		transaction.ClientID, transaction.Amount, transaction.Type)
+	_, err := r.db.ExecContext(ctx, "INSERT INTO transaction (client_id, amount, type, status) VALUES ($1, $2, $3, $4)",
+		transaction.ClientID, transaction.Amount, transaction.Type, transaction.Status)
 	if err != nil {
 		return err
 	}

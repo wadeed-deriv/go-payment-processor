@@ -1,5 +1,6 @@
    CREATE TYPE gateway AS ENUM ('A', 'B');
    CREATE TYPE transactiontype AS ENUM ('DEPOSIT', 'WITHDRAWAL', 'DEPOSIT_REVERSAL', 'WITHDRAWAL_REVERSAL');
+   CREATE TYPE transactionstatus AS ENUM ('COMPLETED', 'FAILED');
    
    CREATE TABLE IF NOT EXISTS client (
     id SERIAL PRIMARY KEY,
@@ -14,6 +15,7 @@
     type transactiontype NOT NULL,
     amount DECIMAL(10, 2) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    status transactionstatus NOT NULL,
     FOREIGN KEY (client_id) REFERENCES client(id)
    );
 
